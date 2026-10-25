@@ -58,6 +58,19 @@
             position: relative;
             padding: 20px 10px;
         }
+        .faces-container {
+            display: flex;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+            flex: 1;
+            position: relative;
+            padding: 20px 10px;
+            perspective: 1000px;
+        }
         .face-card {
             width: 28vw;
             max-width: 180px;
@@ -69,19 +82,37 @@
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             position: relative;
+            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
         }
         .face-card:nth-child(1) {
             margin-right: -5%;
             z-index: 1;
+            transform: rotate(-5deg);
         }
         .face-card:nth-child(2) {
-            transform: scale(1.12);
+            transform: scale(1.12) rotate(0deg);
             z-index: 3;
             margin: 0 -5%;
         }
         .face-card:nth-child(3) {
             margin-left: -5%;
             z-index: 2;
+            transform: rotate(5deg);
+        }
+        .face-card:hover {
+            transform: scale(1.15) rotateY(10deg) rotateX(5deg);
+            z-index: 10;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        }
+        .face-card:nth-child(1):hover {
+            transform: scale(1.15) rotateY(-15deg) rotateX(5deg);
+        }
+        .face-card:nth-child(2):hover {
+            transform: scale(1.25) rotateY(0deg) rotateX(5deg);
+        }
+        .face-card:nth-child(3):hover {
+            transform: scale(1.15) rotateY(15deg) rotateX(5deg);
         }
         .face-card img {
             width: 100%;

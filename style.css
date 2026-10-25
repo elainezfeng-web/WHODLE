@@ -1,4 +1,12 @@
 /* Simple, mobile-friendly styles for WHODLE */
+:root {
+    --color-1: #0d1b2a;
+    --color-2: #1b263b;
+    --color-3: #415a77;
+    --color-4: #778da9;
+    --color-5: #e0e1dd;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -9,7 +17,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%);
     min-height: 100vh;
     padding: 20px;
     display: flex;
@@ -20,15 +28,15 @@ body {
 .container {
     width: 100%;
     max-width: 500px;
-    background: white;
+    background: var(--color-5);
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
     overflow: hidden;
 }
 
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-1) 0%, var(--color-3) 100%);
+    color: var(--color-5);
     padding: 20px;
     text-align: center;
 }
@@ -51,7 +59,7 @@ header h1 {
 .mystery-section h2 {
     text-align: center;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--color-1);
     font-size: 22px;
 }
 
@@ -59,9 +67,9 @@ header h1 {
     width: 200px;
     height: 200px;
     margin: 0 auto 15px;
-    border: 3px solid #667eea;
+    border: 3px solid var(--color-3);
     border-radius: 8px;
-    background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(45deg, var(--color-4) 0%, var(--color-3) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -75,7 +83,7 @@ header h1 {
     position: absolute;
     width: 80px;
     height: 80px;
-    background: #4facfe;
+    background: var(--color-2);
     border-radius: 50%;
     top: 30px;
     left: 60px;
@@ -86,15 +94,16 @@ header h1 {
     position: absolute;
     width: 60px;
     height: 60px;
-    background: #43e97b;
+    background: var(--color-5);
     bottom: 40px;
     right: 50px;
     transform: rotate(45deg);
+    border: 2px solid var(--color-1);
 }
 
 .clue-text {
     text-align: center;
-    color: #666;
+    color: var(--color-2);
     font-size: 14px;
     margin-bottom: 20px;
 }
@@ -106,7 +115,7 @@ header h1 {
 .attempts-text {
     text-align: center;
     font-weight: bold;
-    color: #667eea;
+    color: var(--color-3);
     margin-bottom: 15px;
     font-size: 16px;
 }
@@ -114,7 +123,7 @@ header h1 {
 .guess-label {
     text-align: center;
     margin-bottom: 10px;
-    color: #333;
+    color: var(--color-1);
     font-weight: 600;
 }
 
@@ -128,19 +137,20 @@ header h1 {
 .option-btn {
     padding: 12px 20px;
     font-size: 16px;
-    background: #f0f0f0;
-    border: 2px solid #ddd;
+    background: var(--color-5);
+    border: 2px solid var(--color-4);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
+    color: var(--color-1);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
 .option-btn:hover:not(:disabled) {
-    background: #e0e7ff;
-    border-color: #667eea;
+    background: var(--color-4);
+    border-color: var(--color-3);
     transform: translateY(-2px);
 }
 
@@ -169,7 +179,7 @@ header h1 {
     text-align: center;
     min-height: 24px;
     font-weight: 600;
-    color: #333;
+    color: var(--color-1);
     font-size: 15px;
 }
 
@@ -180,34 +190,35 @@ header h1 {
 .result-section h2 {
     font-size: 28px;
     margin-bottom: 15px;
-    color: #333;
+    color: var(--color-1);
 }
 
 .result-message {
     font-size: 18px;
     margin: 15px 0;
     font-weight: 600;
+    color: var(--color-2);
 }
 
 .score-text {
     font-size: 20px;
     margin: 10px 0;
-    color: #667eea;
+    color: var(--color-3);
     font-weight: bold;
 }
 
 .answer-text {
     font-size: 16px;
     margin: 10px 0;
-    color: #666;
+    color: var(--color-2);
 }
 
 .play-again-btn {
     margin-top: 20px;
     padding: 12px 30px;
     font-size: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-1) 0%, var(--color-3) 100%);
+    color: var(--color-5);
     border: none;
     border-radius: 8px;
     cursor: pointer;

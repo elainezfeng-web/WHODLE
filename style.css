@@ -23,6 +23,46 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.mute-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    background: rgba(224, 225, 221, 0.9);
+    border: 2px solid var(--color-3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.mute-btn:hover {
+    transform: scale(1.1);
+}
+
+.mute-btn:active {
+    transform: scale(0.95);
+}
+
+.particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
 }
 
 .container {
@@ -32,6 +72,29 @@ body {
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
     overflow: hidden;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.1s ease;
+}
+
+.container.shake {
+    animation: screenShake 0.3s ease-in-out;
+}
+
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.squash-stretch {
+    animation: squashStretch 0.2s ease-in-out;
+}
+
+@keyframes squashStretch {
+    0% { transform: scale(1, 1); }
+    50% { transform: scale(1.05, 0.95); }
+    100% { transform: scale(1, 1); }
 }
 
 header {
@@ -155,7 +218,7 @@ header h1 {
 }
 
 .option-btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
 }
 
 .option-btn:disabled {

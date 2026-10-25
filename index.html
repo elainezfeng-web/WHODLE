@@ -5,45 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WHODLE</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .landing-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%);
+        }
+        .landing-title {
+            font-size: 72px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            color: var(--color-5);
+            text-align: center;
+            margin-top: 60px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+        .play-button {
+            padding: 16px 60px;
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--color-3) 0%, var(--color-4) 100%);
+            color: var(--color-1);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 60px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .play-button:hover {
+            transform: scale(1.05);
+        }
+        .play-button:active {
+            transform: scale(0.98);
+        }
+        @media (max-width: 480px) {
+            .landing-title {
+                font-size: 48px;
+                letter-spacing: 4px;
+                margin-top: 40px;
+            }
+            .play-button {
+                font-size: 20px;
+                padding: 14px 50px;
+                margin-bottom: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>WHODLE</h1>
-            <p class="subtitle">Guess who it is! (30-second fun)</p>
-        </header>
-
-        <!-- Main Entry Page -->
-        <section id="gameScreen" class="screen">
-            <div class="mystery-section">
-                <h2>Mystery Person</h2>
-                <div id="mysteryImage" class="mystery-image" aria-label="Mystery person placeholder"></div>
-                <p class="clue-text">Look at the colored shapes and guess!</p>
-            </div>
-
-            <div class="guess-section">
-                <p class="attempts-text">Attempts left: <span id="attemptsLeft">3</span></p>
-                <p class="guess-label">Make a guess:</p>
-                <div id="optionsContainer" class="options-container">
-                    <!-- Options populated by JavaScript -->
-                </div>
-                <p id="feedback" class="feedback" aria-live="polite"></p>
-            </div>
-        </section>
-
-        <!-- Result Page -->
-        <section id="resultScreen" class="screen" style="display: none;">
-            <div class="result-section">
-                <h2 id="resultTitle">Result</h2>
-                <div id="resultImage" class="mystery-image"></div>
-                <p id="resultMessage" class="result-message"></p>
-                <p class="score-text">Score: <span id="finalScore">0</span></p>
-                <p class="answer-text">The answer was: <span id="answerName"></span></p>
-                <button id="playAgainBtn" class="play-again-btn" type="button">Play Again</button>
-            </div>
-        </section>
+    <div class="landing-container">
+        <h1 class="landing-title">WHODLE</h1>
+        <a href="game.html" class="play-button">PLAY</a>
     </div>
-
-    <script src="app.js"></script>
 </body>
 </html>

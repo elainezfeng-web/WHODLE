@@ -227,19 +227,8 @@ function setupPlayAgain() {
     });
 }
 
-// Set today's date
-function setTodayDate() {
-    const dateEl = document.getElementById('todayDate');
-    if (dateEl) {
-        const today = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        dateEl.textContent = today.toLocaleDateString(undefined, options);
-    }
-}
-
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    setTodayDate();
     setupPlayAgain();
     initGame();
 });

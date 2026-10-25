@@ -15,6 +15,12 @@
             padding: 40px 20px;
             background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%);
         }
+        .landing-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
         .landing-title {
             font-size: 72px;
             font-weight: bold;
@@ -23,6 +29,22 @@
             text-align: center;
             margin-top: 60px;
             text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+        .landing-date {
+            color: var(--color-5);
+            font-size: 16px;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        .landing-instructions {
+            color: var(--color-5);
+            font-size: 15px;
+            text-align: center;
+            max-width: 400px;
+            margin-top: 30px;
+            line-height: 1.5;
+            opacity: 0.95;
+            padding: 0 10px;
         }
         .play-button {
             padding: 16px 60px;
@@ -53,6 +75,13 @@
                 letter-spacing: 4px;
                 margin-top: 40px;
             }
+            .landing-date {
+                font-size: 14px;
+            }
+            .landing-instructions {
+                font-size: 14px;
+                margin-top: 20px;
+            }
             .play-button {
                 font-size: 20px;
                 padding: 14px 50px;
@@ -63,8 +92,20 @@
 </head>
 <body>
     <div class="landing-container">
-        <h1 class="landing-title">WHODLE</h1>
+        <div class="landing-top">
+            <h1 class="landing-title">WHODLE</h1>
+            <p class="landing-date" id="landingDate"></p>
+            <p class="landing-instructions">Guess the mystery person in 3 tries. Each guess gives you feedback. Like Wordle, but for people!</p>
+        </div>
         <a href="game.html" class="play-button">PLAY</a>
     </div>
+    <script>
+        const landingDateEl = document.getElementById('landingDate');
+        if (landingDateEl) {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            landingDateEl.textContent = today.toLocaleDateString(undefined, options);
+        }
+    </script>
 </body>
 </html>

@@ -1,25 +1,15 @@
-// WHODLE - Simple DLE-style guessing game
+// WHODLE - LinkedIn Profile Guessing Game
 // All tuning numbers in one CONFIG object
 const CONFIG = {
-    // Number of attempts allowed per game (limited attempts = obstacle)
-    maxAttempts: 3,                // short comment: how many guesses player gets
-    
-    // Scoring configuration
-    baseScore: 100,                // short comment: points for guessing correctly
-    speedBonusPerAttempt: 25,      // short comment: bonus points saved by using fewer attempts
-    perfectBonus: 50,              // short comment: extra points for guessing on first try
-    
-    // Feedback timing (in milliseconds)
-    feedbackDelay: 800,            // short comment: pause before showing feedback
-    resultDelay: 1000,             // short comment: pause before showing result screen
-    
-    // Juiciness settings
-    shakeDuration: 300,            // short comment: screen shake duration in ms
-    squashDuration: 200,           // short comment: squash and stretch duration in ms
-    particleCount: 20              // short comment: number of particles on effects
+    maxGuesses: 10,
+    feedbackDelay: 800,
+    summaryDelay: 1500,
+    shakeDuration: 300,
+    squashDuration: 200,
+    particleCount: 20
 };
 
-// Sound system using Web Audio API
+// Sound system
 let audioContext = null;
 let isMuted = false;
 
@@ -27,54 +17,42 @@ function initAudio() {
     if (!audioContext) {
         try {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        } catch (e) {
-            // Audio not supported
-        }
+        } catch (e) {}
     }
 }
 
 function playTone(frequency, duration, type = 'sine') {
     if (isMuted || !audioContext) return;
-    
     try {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
         oscillator.frequency.value = frequency;
         oscillator.type = type;
-        
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-        
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration);
-    } catch (e) {
-        // Ignore audio errors
-    }
+    } catch (e) {}
 }
 
 function playCorrectSound() {
-    // Happy rising sound
-    playTone(523, 0.1); // C5
-    setTimeout(() => playTone(659, 0.1), 50); // E5
-    setTimeout(() => playTone(784, 0.15), 100); // G5
+    playTone(523, 0.1);
+    setTimeout(() => playTone(659, 0.1), 50);
+    setTimeout(() => playTone(784, 0.15), 100);
 }
 
 function playWrongSound() {
-    // Sad descending sound
     playTone(400, 0.15, 'sawtooth');
     setTimeout(() => playTone(300, 0.2, 'sawtooth'), 80);
 }
 
 function playTapSound() {
-    // Quick tap sound
     playTone(800, 0.05, 'square');
 }
 
-// Particle system
+// Particles
 const particles = [];
 const canvas = document.getElementById('particleCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
@@ -88,38 +66,32 @@ function resizeCanvas() {
 
 function createParticles(x, y, color = '#778da9') {
     if (!ctx) return;
-    
     for (let i = 0; i < CONFIG.particleCount; i++) {
         particles.push({
-            x: x,
-            y: y,
+            x, y,
             vx: (Math.random() - 0.5) * 8,
             vy: (Math.random() - 0.5) * 8,
             life: 1.0,
             decay: Math.random() * 0.02 + 0.01,
             size: Math.random() * 4 + 2,
-            color: color
+            color
         });
     }
 }
 
 function updateParticles() {
     if (!ctx || !canvas) return;
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.life -= p.decay;
-        p.vy += 0.2; // gravity
-        
+        p.vy += 0.2;
         if (p.life <= 0) {
             particles.splice(i, 1);
             continue;
         }
-        
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
         ctx.beginPath();
@@ -127,103 +99,132 @@ function updateParticles() {
         ctx.fill();
     }
     ctx.globalAlpha = 1.0;
-    
     requestAnimationFrame(updateParticles);
 }
 
-// Screen shake
 function screenShake() {
     const container = document.getElementById('gameContainer');
     if (container) {
         container.classList.add('shake');
-        setTimeout(() => {
-            container.classList.remove('shake');
-        }, CONFIG.shakeDuration);
+        setTimeout(() => container.classList.remove('shake'), CONFIG.shakeDuration);
     }
 }
 
-// Squash and stretch
 function squashStretch(element) {
     if (!element) return;
     element.classList.add('squash-stretch');
-    setTimeout(() => {
-        element.classList.remove('squash-stretch');
-    }, CONFIG.squashDuration);
+    setTimeout(() => element.classList.remove('squash-stretch'), CONFIG.squashDuration);
 }
-
-// Dummy data example (hardcoded)
-const DUMMY_DATA = {
-    mysteryPerson: {
-        name: "Alex",              // The answer
-        imageDescription: "Blue circle and green square shapes" // Description of placeholder
-    },
-    options: [
-        "Alex",                    // Correct answer
-        "Taylor",                  // Wrong option
-        "Jordan",                  // Wrong option
-        "Morgan"                   // Wrong option
-    ]
-};
 
 // Game state
 let gameState = {
-    attemptsLeft: CONFIG.maxAttempts,
-    attemptsUsed: 0,
-    gameOver: false,
+    currentProfile: null,
+    hiddenWorkplace: '',
+    guessCount: 0,
     hasWon: false,
-    correctAnswer: DUMMY_DATA.mysteryPerson.name
+    allProfiles: []
 };
 
-// Initialize the game
+// Load profiles
+async function loadProfiles() {
+    try {
+        const response = await fetch('profiles_full.json');
+        gameState.allProfiles = await response.json();
+        initGame();
+    } catch (e) {
+        console.error('Error loading profiles:', e);
+    }
+}
+
+// Initialize game
 function initGame() {
     initAudio();
     
-    // Reset game state
-    gameState = {
-        attemptsLeft: CONFIG.maxAttempts,
-        attemptsUsed: 0,
-        gameOver: false,
-        hasWon: false,
-        correctAnswer: DUMMY_DATA.mysteryPerson.name
-    };
+    // Pick random profile
+    const randomIndex = Math.floor(Math.random() * gameState.allProfiles.length);
+    gameState.currentProfile = gameState.allProfiles[randomIndex];
     
-    // Update UI
-    document.getElementById('attemptsLeft').textContent = gameState.attemptsLeft;
-    document.getElementById('feedback').textContent = '';
+    // Get previous workplaces (not current)
+    const prevWorkplaces = gameState.currentProfile.workplaces.filter(w => 
+        w.toLowerCase() !== (gameState.currentProfile.workplace_current || '').toLowerCase()
+    );
     
-    // Hide result screen, show game screen
-    document.getElementById('resultScreen').style.display = 'none';
-    document.getElementById('gameScreen').style.display = 'block';
-    
-    // Setup mystery image (using colored shapes - no art yet)
-    const mysteryImg = document.getElementById('mysteryImage');
-    if (mysteryImg) {
-        mysteryImg.title = DUMMY_DATA.mysteryPerson.imageDescription;
-        squashStretch(mysteryImg);
+    if (prevWorkplaces.length === 0) {
+        // Try to pick another profile
+        loadProfiles();
+        return;
     }
     
-    // Setup options
+    // Pick a random previous workplace to hide
+    gameState.hiddenWorkplace = prevWorkplaces[Math.floor(Math.random() * prevWorkplaces.length)];
+    gameState.guessCount = 0;
+    gameState.hasWon = false;
+    
+    // Update UI
+    document.getElementById('profileInitials').textContent = gameState.currentProfile.initials;
+    document.getElementById('currentWorkplace').textContent = gameState.currentProfile.workplace_current || 'N/A';
+    document.getElementById('profileLocation').textContent = gameState.currentProfile.location || 'N/A';
+    document.getElementById('numExp').textContent = gameState.currentProfile.numExperiences;
+    document.getElementById('guessCount').textContent = gameState.guessCount;
+    document.getElementById('hiddenWorkplace').textContent = '???';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('successMessage').style.display = 'none';
+    
+    document.getElementById('summaryScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'block';
+    
     setupOptions();
 }
 
-// Setup guess options
+// Setup options
 function setupOptions() {
     const optionsContainer = document.getElementById('optionsContainer');
     if (!optionsContainer) return;
     optionsContainer.innerHTML = '';
     
-    // Shuffle options for variety (simple shuffle)
-    const shuffledOptions = [...DUMMY_DATA.options].sort(() => Math.random() - 0.5);
+    // Get options from similar profiles and add the correct answer
+    const options = new Set();
+    options.add(gameState.hiddenWorkplace);
     
-    shuffledOptions.forEach(option => {
+    // Add options from similar profiles
+    if (gameState.currentProfile.similar_profiles) {
+        for (const similar of gameState.currentProfile.similar_profiles) {
+            for (const wp of similar.workplaces) {
+                if (wp && wp !== gameState.hiddenWorkplace) {
+                    options.add(wp);
+                    if (options.size >= 4) break;
+                }
+            }
+            if (options.size >= 4) break;
+        }
+    }
+    
+    // If not enough options, add some from other profiles
+    if (options.size < 4) {
+        for (let i = 0; i < gameState.allProfiles.length && options.size < 4; i++) {
+            const p = gameState.allProfiles[i];
+            if (p.id === gameState.currentProfile.id) continue;
+            for (const wp of p.workplaces) {
+                if (wp && wp !== gameState.hiddenWorkplace) {
+                    options.add(wp);
+                    if (options.size >= 4) break;
+                }
+            }
+        }
+    }
+    
+    const optionsArray = Array.from(options).slice(0, 4);
+    // Shuffle
+    optionsArray.sort(() => Math.random() - 0.5);
+    
+    optionsArray.forEach(option => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.type = 'button';
         btn.textContent = option;
         btn.setAttribute('data-option', option);
         
-        // Add click and touch support with squash/stretch
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
             playTapSound();
             squashStretch(btn);
             handleGuess(option, btn);
@@ -235,161 +236,81 @@ function setupOptions() {
             handleGuess(option, btn);
         });
         
-        // Keyboard accessibility - allow Enter/Space on focused buttons
-        btn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                playTapSound();
-                squashStretch(btn);
-                handleGuess(option, btn);
-            }
-        });
-        
         optionsContainer.appendChild(btn);
     });
 }
 
-// Handle a guess
+// Handle guess
 function handleGuess(guess, buttonElement) {
-    if (gameState.gameOver) {
-        return;
-    }
+    if (gameState.hasWon) return;
     
-    gameState.attemptsUsed++;
-    gameState.attemptsLeft--;
+    gameState.guessCount++;
+    document.getElementById('guessCount').textContent = gameState.guessCount;
     
-    const attemptsLeftEl = document.getElementById('attemptsLeft');
-    if (attemptsLeftEl) {
-        attemptsLeftEl.textContent = gameState.attemptsLeft;
-    }
-    
-    // Disable all buttons
     const allButtons = document.querySelectorAll('.option-btn');
-    allButtons.forEach(btn => {
-        btn.disabled = true;
-    });
     
-    const feedbackEl = document.getElementById('feedback');
-    
-    if (guess === gameState.correctAnswer) {
-        // Correct guess - WIN
+    if (guess === gameState.hiddenWorkplace) {
+        // Correct
         gameState.hasWon = true;
-        gameState.gameOver = true;
         buttonElement.classList.add('correct');
-        if (feedbackEl) {
-            feedbackEl.textContent = 'Correct! 🎉';
-            feedbackEl.style.color = '#10b981';
-        }
+        buttonElement.disabled = true;
+        allButtons.forEach(btn => {
+            if (btn !== buttonElement) {
+                btn.disabled = true;
+                if (btn.getAttribute('data-option') !== gameState.hiddenWorkplace) {
+                    btn.classList.add('wrong');
+                }
+            }
+        });
+        
+        document.getElementById('hiddenWorkplace').textContent = gameState.hiddenWorkplace;
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('successMessage').style.display = 'block';
+        
         playCorrectSound();
-        createParticles(window.innerWidth / 2, window.innerHeight / 2, '#10b981');
+        createParticles(window.innerWidth / 2, 200, '#10b981');
         
         setTimeout(() => {
-            showResult();
-        }, CONFIG.resultDelay);
+            showSummary();
+        }, CONFIG.summaryDelay);
     } else {
-        // Wrong guess
+        // Wrong
         buttonElement.classList.add('wrong');
-        if (feedbackEl) {
-            feedbackEl.textContent = 'Wrong guess. Try again!';
-            feedbackEl.style.color = '#ef4444';
-        }
+        buttonElement.disabled = true;
+        
+        document.getElementById('feedback').textContent = 'Try again!';
+        document.getElementById('feedback').style.color = '#ef4444';
+        
         playWrongSound();
         screenShake();
-        createParticles(buttonElement.getBoundingClientRect().left + buttonElement.offsetWidth / 2, 
-                        buttonElement.getBoundingClientRect().top + buttonElement.offsetHeight / 2, 
+        createParticles(buttonElement.getBoundingClientRect().left + buttonElement.offsetWidth / 2,
+                        buttonElement.getBoundingClientRect().top + buttonElement.offsetHeight / 2,
                         '#ef4444');
-        
-        if (gameState.attemptsLeft <= 0) {
-            // Out of attempts - LOSE
-            gameState.gameOver = true;
-            // Show correct answer
-            allButtons.forEach(btn => {
-                if (btn.getAttribute('data-option') === gameState.correctAnswer) {
-                    btn.classList.add('correct');
-                }
-            });
-            
-            setTimeout(() => {
-                showResult();
-            }, CONFIG.resultDelay);
-        } else {
-            // Still have attempts, re-enable other buttons after delay
-            setTimeout(() => {
-                if (feedbackEl) {
-                    feedbackEl.textContent = '';
-                }
-                // Re-enable buttons that weren't clicked
-                allButtons.forEach(btn => {
-                    if (btn !== buttonElement) {
-                        btn.disabled = false;
-                    }
-                });
-            }, CONFIG.feedbackDelay);
-        }
     }
 }
 
-// Calculate score
-function calculateScore() {
-    if (!gameState.hasWon) {
-        return 0; // Lose = 0 or could be partial, but win/lose per requirements
-    }
+// Show summary
+function showSummary() {
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('summaryScreen').style.display = 'block';
     
-    let score = CONFIG.baseScore;
+    document.getElementById('finalGuesses').textContent = gameState.guessCount;
+    document.getElementById('answerWorkplace').textContent = gameState.hiddenWorkplace;
     
-    // Speed bonus - fewer attempts used = higher bonus
-    // attemptsUsed is 1 if first try
-    const attemptsSaved = CONFIG.maxAttempts - gameState.attemptsUsed;
-    score += attemptsSaved * CONFIG.speedBonusPerAttempt;
-    
-    // Perfect bonus for first try
-    if (gameState.attemptsUsed === 1) {
-        score += CONFIG.perfectBonus;
-    }
-    
-    return score;
-}
-
-// Show result screen
-function showResult() {
-    const gameScreen = document.getElementById('gameScreen');
-    const resultScreen = document.getElementById('resultScreen');
-    if (gameScreen) gameScreen.style.display = 'none';
-    if (resultScreen) resultScreen.style.display = 'block';
-    
-    const resultTitle = document.getElementById('resultTitle');
-    const resultMessage = document.getElementById('resultMessage');
-    const finalScoreEl = document.getElementById('finalScore');
-    const answerNameEl = document.getElementById('answerName');
-    const resultImg = document.getElementById('resultImage');
-    
-    if (resultImg) {
-        resultImg.title = DUMMY_DATA.mysteryPerson.imageDescription;
-        squashStretch(resultImg);
-    }
-    
-    if (gameState.hasWon) {
-        if (resultTitle) {
-            resultTitle.textContent = 'You Win! 🎉';
-            resultTitle.style.color = '#10b981';
-        }
-        if (resultMessage) resultMessage.textContent = 'Great job guessing correctly!';
-        createParticles(window.innerWidth / 2, 200, '#10b981');
+    let comparison = '';
+    if (gameState.guessCount === 1) {
+        comparison = 'amazing - first try!';
+    } else if (gameState.guessCount <= 2) {
+        comparison = 'great';
+    } else if (gameState.guessCount <= 3) {
+        comparison = 'good';
     } else {
-        if (resultTitle) {
-            resultTitle.textContent = 'Game Over';
-            resultTitle.style.color = '#ef4444';
-        }
-        if (resultMessage) resultMessage.textContent = 'Out of attempts. Better luck next time!';
-        screenShake();
+        comparison = 'decent';
     }
-    
-    const score = calculateScore();
-    if (finalScoreEl) finalScoreEl.textContent = score;
-    if (answerNameEl) answerNameEl.textContent = gameState.correctAnswer;
+    document.getElementById('comparison').textContent = comparison;
 }
 
-// Setup play again button
+// Setup play again
 function setupPlayAgain() {
     const playAgainBtn = document.getElementById('playAgainBtn');
     if (playAgainBtn) {
@@ -407,7 +328,7 @@ function setupPlayAgain() {
     }
 }
 
-// Setup mute button
+// Setup mute
 function setupMuteButton() {
     const muteBtn = document.getElementById('muteBtn');
     if (muteBtn) {
@@ -427,12 +348,12 @@ function setupMuteButton() {
     }
 }
 
-// Initialize game when DOM is loaded
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     updateParticles();
     setupMuteButton();
     setupPlayAgain();
-    initGame();
+    loadProfiles();
 });

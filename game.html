@@ -14,36 +14,44 @@
     <canvas id="particleCanvas" class="particle-canvas"></canvas>
     <div id="gameContainer" class="container">
         <header>
-            <h1>WHODLE</h1>
-            <p class="subtitle">Guess who it is! (30-second fun)</p>
+            <h1>WH🔍DLE</h1>
+            <p class="subtitle">Guess the missing info!</p>
         </header>
 
-        <!-- Main Entry Page -->
+        <!-- Game Screen -->
         <section id="gameScreen" class="screen">
-            <div class="mystery-section">
-                <h2>Mystery Person</h2>
-                <div id="mysteryImage" class="mystery-image" aria-label="Mystery person placeholder"></div>
-                <p class="clue-text">Look at the colored shapes and guess!</p>
+            <div class="profile-section">
+                <h2>Profile: <span id="profileInitials"></span></h2>
+                <div class="profile-info">
+                    <p><strong>Current:</strong> <span id="currentWorkplace"></span></p>
+                    <p><strong>Location:</strong> <span id="profileLocation"></span></p>
+                    <p><strong>Experiences:</strong> <span id="numExp"></span></p>
+                </div>
+                <div class="question-section">
+                    <p class="question-text">Where did this person <strong>previously</strong> work?</p>
+                    <div class="hidden-info">
+                        <p>They worked at: <span id="hiddenWorkplace" class="hidden-box">???</span></p>
+                    </div>
+                </div>
             </div>
 
             <div class="guess-section">
-                <p class="attempts-text">Attempts left: <span id="attemptsLeft">3</span></p>
-                <p class="guess-label">Make a guess:</p>
+                <p class="attempts-text">Guesses: <span id="guessCount">0</span></p>
                 <div id="optionsContainer" class="options-container">
                     <!-- Options populated by JavaScript -->
                 </div>
                 <p id="feedback" class="feedback" aria-live="polite"></p>
+                <p id="successMessage" class="success-message" style="display: none;">You got it! 🎉</p>
             </div>
         </section>
 
-        <!-- Result Page -->
-        <section id="resultScreen" class="screen" style="display: none;">
+        <!-- Summary Screen -->
+        <section id="summaryScreen" class="screen" style="display: none;">
             <div class="result-section">
-                <h2 id="resultTitle">Result</h2>
-                <div id="resultImage" class="mystery-image"></div>
-                <p id="resultMessage" class="result-message"></p>
-                <p class="score-text">Score: <span id="finalScore">0</span></p>
-                <p class="answer-text">The answer was: <span id="answerName"></span></p>
+                <h2>Summary</h2>
+                <p class="summary-text">You got it in <strong><span id="finalGuesses">0</span></strong> guess(es)!</p>
+                <p class="summary-text">The answer was: <strong><span id="answerWorkplace"></span></strong></p>
+                <p class="comparison-text">Compared to others, you did <span id="comparison"></span>!</p>
                 <button id="playAgainBtn" class="play-again-btn" type="button">Play Again</button>
             </div>
         </section>

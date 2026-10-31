@@ -119,56 +119,52 @@ header h1 {
     padding: 20px;
 }
 
-.mystery-section h2 {
+.profile-section h2 {
     text-align: center;
     margin-bottom: 15px;
     color: var(--color-1);
     font-size: 22px;
 }
 
-.mystery-image {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 15px;
-    border: 3px solid var(--color-3);
+.profile-info {
+    background: var(--color-4);
+    padding: 12px;
     border-radius: 8px;
-    background: linear-gradient(45deg, var(--color-4) 0%, var(--color-3) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    margin-bottom: 15px;
 }
 
-/* Simple colored shapes for placeholder */
-.mystery-image::before {
-    content: '';
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    background: var(--color-2);
-    border-radius: 50%;
-    top: 30px;
-    left: 60px;
-}
-
-.mystery-image::after {
-    content: '';
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    background: var(--color-5);
-    bottom: 40px;
-    right: 50px;
-    transform: rotate(45deg);
-    border: 2px solid var(--color-1);
-}
-
-.clue-text {
-    text-align: center;
-    color: var(--color-2);
+.profile-info p {
+    margin: 5px 0;
+    color: var(--color-1);
     font-size: 14px;
-    margin-bottom: 20px;
+}
+
+.question-section {
+    margin-bottom: 15px;
+}
+
+.question-text {
+    text-align: center;
+    font-size: 16px;
+    color: var(--color-1);
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.hidden-info {
+    text-align: center;
+    font-size: 15px;
+    color: var(--color-2);
+}
+
+.hidden-box {
+    display: inline-block;
+    background: var(--color-3);
+    color: var(--color-5);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    min-width: 80px;
 }
 
 .guess-section {
@@ -183,13 +179,6 @@ header h1 {
     font-size: 16px;
 }
 
-.guess-label {
-    text-align: center;
-    margin-bottom: 10px;
-    color: var(--color-1);
-    font-weight: 600;
-}
-
 .options-container {
     display: flex;
     flex-direction: column;
@@ -199,7 +188,7 @@ header h1 {
 
 .option-btn {
     padding: 12px 20px;
-    font-size: 16px;
+    font-size: 15px;
     background: var(--color-5);
     border: 2px solid var(--color-4);
     border-radius: 8px;
@@ -227,15 +216,17 @@ header h1 {
 }
 
 .option-btn.correct {
-    background: #d1fae5;
-    border-color: #10b981;
-    color: #065f46;
+    background: #d1fae5 !important;
+    border-color: #10b981 !important;
+    color: #065f46 !important;
+    opacity: 1 !important;
 }
 
 .option-btn.wrong {
-    background: #fee2e2;
-    border-color: #ef4444;
-    color: #991b1b;
+    background: #fee2e2 !important;
+    border-color: #ef4444 !important;
+    color: #991b1b !important;
+    opacity: 1 !important;
 }
 
 .feedback {
@@ -244,6 +235,14 @@ header h1 {
     font-weight: 600;
     color: var(--color-1);
     font-size: 15px;
+}
+
+.success-message {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #10b981;
+    margin-top: 10px;
 }
 
 .result-section {
@@ -256,24 +255,17 @@ header h1 {
     color: var(--color-1);
 }
 
-.result-message {
-    font-size: 18px;
-    margin: 15px 0;
-    font-weight: 600;
-    color: var(--color-2);
-}
-
-.score-text {
-    font-size: 20px;
-    margin: 10px 0;
-    color: var(--color-3);
-    font-weight: bold;
-}
-
-.answer-text {
+.summary-text {
     font-size: 16px;
     margin: 10px 0;
     color: var(--color-2);
+}
+
+.comparison-text {
+    font-size: 16px;
+    margin: 15px 0;
+    color: var(--color-3);
+    font-weight: 600;
 }
 
 .play-again-btn {

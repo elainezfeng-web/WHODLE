@@ -200,7 +200,7 @@ function initGame() {
     document.getElementById('numExp').textContent = gameState.currentProfile.numExperiences || 0;
     const aboutEl = document.getElementById('profileAbout');
     if (aboutEl) {
-        aboutEl.textContent = gameState.currentProfile.about || 'No description available.';
+        aboutEl.textContent = gameState.currentProfile.description || gameState.currentProfile.about || 'No description available.';
     }
     document.getElementById('guessCount').textContent = gameState.guessCount;
     document.getElementById('hiddenWorkplace').textContent = '???';

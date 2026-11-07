@@ -127,12 +127,25 @@ let gameState = {
 
 // Load profiles
 async function loadProfiles() {
+    // Try embedded data first (works with file://)
+    if (window.PROFILES_DATA && Array.isArray(window.PROFILES_DATA) && window.PROFILES_DATA.length > 0) {
+        gameState.allProfiles = window.PROFILES_DATA;
+        initGame();
+        return;
+    }
     try {
         const response = await fetch('profiles_full.json');
+        if (!response.ok) {
+            throw new Error('Failed to load profiles');
+        }
         gameState.allProfiles = await response.json();
         initGame();
     } catch (e) {
         console.error('Error loading profiles:', e);
+        const gameScreen = document.getElementById('gameScreen');
+        if (gameScreen) {
+            gameScreen.innerHTML = '<div style="padding:20px;text-align:center;color:#991b1b;"><p>Could not load game data.</p><p>Please open this game using a local web server (e.g., run: <code>python -m http.server</code> in this folder and open http://localhost:8000/game.html)</p></div>';
+        }
     }
 }
 
@@ -140,31 +153,51 @@ async function loadProfiles() {
 function initGame() {
     initAudio();
     
-    // Pick random profile
-    const randomIndex = Math.floor(Math.random() * gameState.allProfiles.length);
-    gameState.currentProfile = gameState.allProfiles[randomIndex];
-    
-    // Get previous workplaces (not current)
-    const prevWorkplaces = gameState.currentProfile.workplaces.filter(w => 
-        w.toLowerCase() !== (gameState.currentProfile.workplace_current || '').toLowerCase()
-    );
-    
-    if (prevWorkplaces.length === 0) {
-        // Try to pick another profile
+    if (!gameState.allProfiles || gameState.allProfiles.length === 0) {
         loadProfiles();
         return;
     }
     
-    // Pick a random previous workplace to hide
-    gameState.hiddenWorkplace = prevWorkplaces[Math.floor(Math.random() * prevWorkplaces.length)];
+    // Pick random profile (try a few times to find valid one)
+    let attempts = 0;
+    let found = false;
+    while (attempts < 50 && !found) {
+        const randomIndex = Math.floor(Math.random() * gameState.allProfiles.length);
+        gameState.currentProfile = gameState.allProfiles[randomIndex];
+        
+        const current = (gameState.currentProfile.workplace_current || '').toLowerCase().trim();
+        const prevWorkplaces = (gameState.currentProfile.workplaces || []).filter(w => {
+            const wl = (w || '').toLowerCase().trim();
+            return wl && wl !== current && !current.includes(wl) && !wl.includes(current);
+        });
+        
+        if (prevWorkplaces.length > 0) {
+            gameState.hiddenWorkplace = prevWorkplaces[Math.floor(Math.random() * prevWorkplaces.length)];
+            found = true;
+        }
+        attempts++;
+    }
+    
+    if (!found) {
+        // Fallback to first profile with workplaces
+        for (const p of gameState.allProfiles) {
+            if (p.workplaces && p.workplaces.length > 1) {
+                gameState.currentProfile = p;
+                gameState.hiddenWorkplace = p.workplaces[1];
+                found = true;
+                break;
+            }
+        }
+    }
+    
     gameState.guessCount = 0;
     gameState.hasWon = false;
     
     // Update UI
-    document.getElementById('profileInitials').textContent = gameState.currentProfile.initials;
+    document.getElementById('profileInitials').textContent = gameState.currentProfile.initials || '??';
     document.getElementById('currentWorkplace').textContent = gameState.currentProfile.workplace_current || 'N/A';
     document.getElementById('profileLocation').textContent = gameState.currentProfile.location || 'N/A';
-    document.getElementById('numExp').textContent = gameState.currentProfile.numExperiences;
+    document.getElementById('numExp').textContent = gameState.currentProfile.numExperiences || 0;
     document.getElementById('guessCount').textContent = gameState.guessCount;
     document.getElementById('hiddenWorkplace').textContent = '???';
     document.getElementById('feedback').textContent = '';

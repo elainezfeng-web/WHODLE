@@ -198,6 +198,10 @@ function initGame() {
     document.getElementById('currentWorkplace').textContent = gameState.currentProfile.workplace_current || 'N/A';
     document.getElementById('profileLocation').textContent = gameState.currentProfile.location || 'N/A';
     document.getElementById('numExp').textContent = gameState.currentProfile.numExperiences || 0;
+    const aboutEl = document.getElementById('profileAbout');
+    if (aboutEl) {
+        aboutEl.textContent = gameState.currentProfile.about || 'No description available.';
+    }
     document.getElementById('guessCount').textContent = gameState.guessCount;
     document.getElementById('hiddenWorkplace').textContent = '???';
     document.getElementById('feedback').textContent = '';

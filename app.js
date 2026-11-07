@@ -203,6 +203,19 @@ function initGame() {
     document.getElementById('feedback').textContent = '';
     document.getElementById('successMessage').style.display = 'none';
     
+    // Set avatar
+    const avatar = document.getElementById('profileAvatar');
+    if (avatar) {
+        const initials = gameState.currentProfile.initials || '??';
+        avatar.textContent = initials;
+        // Color based on initials
+        const colors = ['#415a77', '#778da9', '#1b263b', '#0d1b2a'];
+        let hash = 0;
+        for (let i = 0; i < initials.length; i++) hash = initials.charCodeAt(i) + ((hash << 5) - hash);
+        avatar.style.background = colors[Math.abs(hash) % colors.length];
+        avatar.style.transform = 'scale(1)';
+    }
+    
     document.getElementById('summaryScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'block';
     

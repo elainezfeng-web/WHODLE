@@ -2,7 +2,9 @@
 // All tuning numbers in one CONFIG object
 const CONFIG = {
     maxGuesses: 10,
+    totalRounds: 5,
     feedbackDelay: 800,
+    nextRoundDelay: 1200,
     summaryDelay: 1500,
     shakeDuration: 300,
     squashDuration: 200,
@@ -122,7 +124,9 @@ let gameState = {
     hiddenWorkplace: '',
     guessCount: 0,
     hasWon: false,
-    allProfiles: []
+    allProfiles: [],
+    currentRound: 1,
+    roundResults: []
 };
 
 // Load profiles
@@ -130,7 +134,7 @@ async function loadProfiles() {
     // Try embedded data first (works with file://)
     if (window.PROFILES_DATA && Array.isArray(window.PROFILES_DATA) && window.PROFILES_DATA.length > 0) {
         gameState.allProfiles = window.PROFILES_DATA;
-        initGame();
+        startNewGame();
         return;
     }
     try {
@@ -139,7 +143,7 @@ async function loadProfiles() {
             throw new Error('Failed to load profiles');
         }
         gameState.allProfiles = await response.json();
-        initGame();
+        startNewGame();
     } catch (e) {
         console.error('Error loading profiles:', e);
         const gameScreen = document.getElementById('gameScreen');
@@ -149,8 +153,14 @@ async function loadProfiles() {
     }
 }
 
-// Initialize game
-function initGame() {
+function startNewGame() {
+    gameState.currentRound = 1;
+    gameState.roundResults = [];
+    startRound();
+}
+
+// Initialize/start a round
+function startRound() {
     initAudio();
     
     if (!gameState.allProfiles || gameState.allProfiles.length === 0) {
@@ -194,6 +204,8 @@ function initGame() {
     gameState.hasWon = false;
     
     // Update UI
+    document.getElementById('currentRound').textContent = gameState.currentRound;
+    document.getElementById('totalRounds').textContent = CONFIG.totalRounds;
     document.getElementById('profileInitials').textContent = gameState.currentProfile.initials || '??';
     document.getElementById('currentWorkplace').textContent = gameState.currentProfile.workplace_current || 'N/A';
     document.getElementById('profileLocation').textContent = gameState.currentProfile.location || 'N/A';
@@ -205,7 +217,8 @@ function initGame() {
     document.getElementById('guessCount').textContent = gameState.guessCount;
     document.getElementById('hiddenWorkplace').textContent = '???';
     document.getElementById('feedback').textContent = '';
-    document.getElementById('successMessage').style.display = 'none';
+    const successMsg = document.getElementById('successMessage');
+    if (successMsg) successMsg.style.display = 'none';
     
     // Set avatar
     const avatar = document.getElementById('profileAvatar');
@@ -224,6 +237,11 @@ function initGame() {
     document.getElementById('gameScreen').style.display = 'block';
     
     setupOptions();
+}
+
+// Backwards compat
+function initGame() {
+    startNewGame();
 }
 
 // Setup options
@@ -315,14 +333,28 @@ function handleGuess(guess, buttonElement) {
         
         document.getElementById('hiddenWorkplace').textContent = gameState.hiddenWorkplace;
         document.getElementById('feedback').textContent = '';
-        document.getElementById('successMessage').style.display = 'block';
+        const successMsg = document.getElementById('successMessage');
+        if (successMsg) successMsg.style.display = 'block';
         
         playCorrectSound();
         createParticles(window.innerWidth / 2, 200, '#10b981');
         
+        // Record result
+        gameState.roundResults.push({
+            round: gameState.currentRound,
+            initials: gameState.currentProfile.initials,
+            guesses: gameState.guessCount,
+            answer: gameState.hiddenWorkplace
+        });
+        
         setTimeout(() => {
-            showSummary();
-        }, CONFIG.summaryDelay);
+            if (gameState.currentRound < CONFIG.totalRounds) {
+                gameState.currentRound++;
+                startRound();
+            } else {
+                showReport();
+            }
+        }, CONFIG.nextRoundDelay);
     } else {
         // Wrong
         buttonElement.classList.add('wrong');
@@ -339,23 +371,37 @@ function handleGuess(guess, buttonElement) {
     }
 }
 
-// Show summary
-function showSummary() {
+// Show report
+function showReport() {
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('summaryScreen').style.display = 'block';
     
-    document.getElementById('finalGuesses').textContent = gameState.guessCount;
-    document.getElementById('answerWorkplace').textContent = gameState.hiddenWorkplace;
+    const totalGuesses = gameState.roundResults.reduce((sum, r) => sum + r.guesses, 0);
+    const avgGuesses = (totalGuesses / gameState.roundResults.length).toFixed(1);
+    
+    document.getElementById('totalGuesses').textContent = totalGuesses;
+    document.getElementById('avgGuesses').textContent = avgGuesses;
+    
+    // Breakdown
+    const breakdown = document.getElementById('roundBreakdown');
+    if (breakdown) {
+        breakdown.innerHTML = '';
+        gameState.roundResults.forEach(r => {
+            const p = document.createElement('p');
+            p.textContent = `Q${r.round} (${r.initials}): ${r.guesses} guess${r.guesses > 1 ? 'es' : ''} — ${r.answer}`;
+            breakdown.appendChild(p);
+        });
+    }
     
     let comparison = '';
-    if (gameState.guessCount === 1) {
-        comparison = 'amazing - first try!';
-    } else if (gameState.guessCount <= 2) {
-        comparison = 'great';
-    } else if (gameState.guessCount <= 3) {
-        comparison = 'good';
+    if (avgGuesses <= 1.2) {
+        comparison = 'amazing!';
+    } else if (avgGuesses <= 1.8) {
+        comparison = 'great job!';
+    } else if (avgGuesses <= 2.5) {
+        comparison = 'pretty good!';
     } else {
-        comparison = 'decent';
+        comparison = 'nice effort!';
     }
     document.getElementById('comparison').textContent = comparison;
 }
@@ -367,13 +413,13 @@ function setupPlayAgain() {
         playAgainBtn.addEventListener('click', () => {
             playTapSound();
             squashStretch(playAgainBtn);
-            initGame();
+            startNewGame();
         });
         playAgainBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
             playTapSound();
             squashStretch(playAgainBtn);
-            initGame();
+            startNewGame();
         });
     }
 }

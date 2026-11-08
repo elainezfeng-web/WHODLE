@@ -20,6 +20,7 @@
 
         <!-- Game Screen -->
         <section id="gameScreen" class="screen">
+            <div class="round-indicator">Question <span id="currentRound">1</span> of <span id="totalRounds">5</span></div>
             <div class="profile-section">
                 <div class="profile-header">
                     <div id="profileAvatar" class="profile-avatar" aria-label="Profile picture"></div>
@@ -49,13 +50,15 @@
             </div>
         </section>
 
-        <!-- Summary Screen -->
+        <!-- Report Screen -->
         <section id="summaryScreen" class="screen" style="display: none;">
             <div class="result-section">
-                <h2>Summary</h2>
-                <p class="summary-text">You got it in <strong><span id="finalGuesses">0</span></strong> guess(es)!</p>
-                <p class="summary-text">The answer was: <strong><span id="answerWorkplace"></span></strong></p>
-                <p class="comparison-text">Compared to others, you did <span id="comparison"></span>!</p>
+                <h2>Report</h2>
+                <p class="summary-text">You completed all 5 questions!</p>
+                <p class="summary-text">Total guesses: <strong><span id="totalGuesses">0</span></strong></p>
+                <p class="summary-text">Average guesses per question: <strong><span id="avgGuesses">0</span></strong></p>
+                <div id="roundBreakdown" class="round-breakdown"></div>
+                <p class="comparison-text">Overall: <span id="comparison"></span></p>
                 <button id="playAgainBtn" class="play-again-btn" type="button">Play Again</button>
             </div>
         </section>

@@ -11,16 +11,16 @@
 
 ## What's done
 - [x] Game plan (GAME.md)
-- [x] Main entry page with mystery person display (colored shapes placeholder)
-- [x] Guessing with 4 options (dummy data: Alex, Taylor, Jordan, Morgan)
-- [x] Feedback on correct/wrong guesses
-- [x] Limited attempts (3 attempts) - obstacle
-- [x] Result page showing win/lose, score, and answer
-- [x] Scoring system (base + speed bonus + perfect bonus)
+- [x] Landing page + game page
+- [x] LinkedIn profile-based WhoDle (redacted initials, descriptions)
+- [x] 5 questions per game with round indicator
+- [x] Multiple-choice guessing with feedback
+- [x] Final report with total/average guesses and per-question breakdown
+- [x] Uses transformed legitimate LinkedIn dataset (simhash for similar options)
 - [x] Mouse click and touch/tap support
-- [x] Keyboard accessible (buttons can be focused)
-- [x] CONFIG object with all tuning numbers at top of app.js
-- [x] No copyrighted characters, uses simple colored shapes
+- [x] Keyboard accessible
+- [x] CONFIG object with tuning numbers
+- [x] Screen shake, particles, squash/stretch, Web Audio SFX, mute button
 - [x] Responsive design for mobile
 
 ## What's next

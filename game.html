@@ -12,6 +12,19 @@
 <body>
     <button id="muteBtn" class="mute-btn" type="button" aria-label="Toggle sound">🔊</button>
     <canvas id="particleCanvas" class="particle-canvas"></canvas>
+    <div id="debugMenu" class="debug-menu" style="display:none;">
+        <div class="debug-content">
+            <h3>Debug Menu</h3>
+            <p>Game date: <span id="debugDateDisplay"></span></p>
+            <label for="debugDateInput">Play date:</label>
+            <input type="date" id="debugDateInput">
+            <div class="debug-buttons">
+                <button id="debugPlayDate" type="button">Play this day</button>
+                <button id="debugToday" type="button">Play today</button>
+                <button id="debugClose" type="button">Close</button>
+            </div>
+        </div>
+    </div>
     <div id="gameContainer" class="container">
         <header>
             <h1>WH🔍DLE</h1>

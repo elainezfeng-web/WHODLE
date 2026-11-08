@@ -55,6 +55,65 @@ body {
     transform: scale(0.95);
 }
 
+.debug-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 27, 42, 0.85);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.debug-content {
+    background: var(--color-5);
+    color: var(--color-1);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Tiny5', sans-serif;
+}
+
+.debug-content h3 {
+    margin-bottom: 10px;
+}
+
+.debug-content label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+.debug-content input[type="date"] {
+    padding: 8px;
+    font-family: inherit;
+    border: 2px solid var(--color-4);
+    border-radius: 6px;
+    width: 100%;
+}
+
+.debug-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.debug-buttons button {
+    padding: 10px;
+    font-family: inherit;
+    border: none;
+    border-radius: 6px;
+    background: var(--color-3);
+    color: var(--color-5);
+    cursor: pointer;
+}
+
 .particle-canvas {
     position: fixed;
     top: 0;

@@ -118,6 +118,46 @@ function squashStretch(element) {
     setTimeout(() => element.classList.remove('squash-stretch'), CONFIG.squashDuration);
 }
 
+// Simple seeded RNG for "play other days"
+function xmur3(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+        h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+        h = h << 13 | h >>> 19;
+    }
+    return function() {
+        h = Math.imul(h ^ (h >>> 16), 2246822507);
+        h = Math.imul(h ^ (h >>> 13), 3266489909);
+        return (h ^= h >>> 16) >>> 0;
+    };
+}
+function mulberry32(a) {
+    return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+let seededRandom = null;
+
+function setSeedForDate(dateStr) {
+    const seedFn = xmur3(dateStr);
+    seededRandom = mulberry32(seedFn());
+}
+
+function getRandom() {
+    if (seededRandom) return seededRandom();
+    return Math.random();
+}
+
+function formatDateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 // Game state
 let gameState = {
     currentProfile: null,
@@ -126,7 +166,8 @@ let gameState = {
     hasWon: false,
     allProfiles: [],
     currentRound: 1,
-    roundResults: []
+    roundResults: [],
+    gameDateKey: formatDateKey(new Date())
 };
 
 // Load profiles
@@ -153,9 +194,16 @@ async function loadProfiles() {
     }
 }
 
-function startNewGame() {
+function startNewGame(dateKey = null) {
     gameState.currentRound = 1;
     gameState.roundResults = [];
+    if (dateKey) {
+        gameState.gameDateKey = dateKey;
+    } else {
+        gameState.gameDateKey = formatDateKey(new Date());
+    }
+    // Seed RNG for consistent "day" puzzles (5 questions derived from same seed)
+    setSeedForDate(gameState.gameDateKey + '|whodle');
     startRound();
 }
 
@@ -172,7 +220,7 @@ function startRound() {
     let attempts = 0;
     let found = false;
     while (attempts < 50 && !found) {
-        const randomIndex = Math.floor(Math.random() * gameState.allProfiles.length);
+        const randomIndex = Math.floor(getRandom() * gameState.allProfiles.length);
         gameState.currentProfile = gameState.allProfiles[randomIndex];
         
         const current = (gameState.currentProfile.workplace_current || '').toLowerCase().trim();
@@ -182,7 +230,7 @@ function startRound() {
         });
         
         if (prevWorkplaces.length > 0) {
-            gameState.hiddenWorkplace = prevWorkplaces[Math.floor(Math.random() * prevWorkplaces.length)];
+            gameState.hiddenWorkplace = prevWorkplaces[Math.floor(getRandom() * prevWorkplaces.length)];
             found = true;
         }
         attempts++;
@@ -283,7 +331,7 @@ function setupOptions() {
     
     const optionsArray = Array.from(options).slice(0, 4);
     // Shuffle
-    optionsArray.sort(() => Math.random() - 0.5);
+    optionsArray.sort(() => getRandom() - 0.5);
     
     optionsArray.forEach(option => {
         const btn = document.createElement('button');
@@ -444,6 +492,62 @@ function setupMuteButton() {
     }
 }
 
+// Debug menu
+function setupDebugMenu() {
+    const debugMenu = document.getElementById('debugMenu');
+    const debugDateInput = document.getElementById('debugDateInput');
+    const debugDateDisplay = document.getElementById('debugDateDisplay');
+    const playDateBtn = document.getElementById('debugPlayDate');
+    const todayBtn = document.getElementById('debugToday');
+    const closeBtn = document.getElementById('debugClose');
+    
+    function openDebug() {
+        if (debugMenu) {
+            debugMenu.style.display = 'flex';
+            if (debugDateDisplay) debugDateDisplay.textContent = gameState.gameDateKey;
+            if (debugDateInput) debugDateInput.value = gameState.gameDateKey;
+        }
+    }
+    function closeDebug() {
+        if (debugMenu) debugMenu.style.display = 'none';
+    }
+    
+    if (playDateBtn) {
+        playDateBtn.addEventListener('click', () => {
+            if (debugDateInput && debugDateInput.value) {
+                startNewGame(debugDateInput.value);
+                closeDebug();
+            }
+        });
+    }
+    if (todayBtn) {
+        todayBtn.addEventListener('click', () => {
+            startNewGame(formatDateKey(new Date()));
+            closeDebug();
+        });
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeDebug);
+    }
+    if (debugMenu) {
+        debugMenu.addEventListener('click', (e) => {
+            if (e.target === debugMenu) closeDebug();
+        });
+    }
+    
+    // Secret password "JOB"
+    let keyBuffer = '';
+    document.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        keyBuffer += e.key.toUpperCase();
+        if (keyBuffer.length > 3) keyBuffer = keyBuffer.slice(-3);
+        if (keyBuffer === 'JOB') {
+            openDebug();
+            keyBuffer = '';
+        }
+    });
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
@@ -451,5 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateParticles();
     setupMuteButton();
     setupPlayAgain();
+    setupDebugMenu();
     loadProfiles();
 });

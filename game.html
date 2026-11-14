@@ -6,12 +6,92 @@
     <title>WHODLE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tiny5&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tiny5&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body class="office-body">
+    <div id="office3d"></div>
+
     <button id="muteBtn" class="mute-btn" type="button" aria-label="Toggle sound">🔊</button>
     <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+    <!-- Diegetic monitor screen: aligned over the 3D CRT by office3d.js -->
+    <div id="screenOverlay" class="screen-overlay">
+        <div id="screenScale" class="screen-scale">
+            <div id="gameContainer" class="container crt">
+                <header class="crt-header">
+                    <div class="crt-topline">
+                        <span class="cam-label">CAM 01</span>
+                        <span class="timestamp" id="timestamp">--:--:--</span>
+                    </div>
+                    <h1 class="crt-logo">WH<span class="crt-cursor">🔍</span>DLE</h1>
+                    <p class="subtitle">&gt; guess_the_missing_info.exe</p>
+                </header>
+
+                <!-- Game Screen -->
+                <section id="gameScreen" class="screen">
+                    <div class="round-indicator">&gt; QUESTION <span id="currentRound">1</span> OF <span id="totalRounds">5</span></div>
+                    <div class="profile-section">
+                        <div class="profile-header">
+                            <div id="profileAvatar" class="profile-avatar" aria-label="Profile picture"></div>
+                            <h2><span id="profileInitials"></span></h2>
+                        </div>
+                        <div class="profile-info">
+                            <p><strong>Current:</strong> <span id="currentWorkplace"></span></p>
+                            <p><strong>Location:</strong> <span id="profileLocation"></span></p>
+                            <p><strong>Experiences:</strong> <span id="numExp"></span></p>
+                            <p class="about-text"><strong>Description:</strong> <span id="profileAbout"></span></p>
+                        </div>
+                        <div class="question-section">
+                            <p class="question-text">Where did this person <strong>previously</strong> work?</p>
+                            <div class="hidden-info">
+                                <p>They worked at: <span id="hiddenWorkplace" class="hidden-box">???</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guess-section">
+                        <p class="attempts-text">Guesses: <span id="guessCount">0</span></p>
+                        <div id="optionsContainer" class="options-container">
+                            <!-- Options populated by JavaScript -->
+                        </div>
+                        <p id="feedback" class="feedback" aria-live="polite"></p>
+                        <p id="successMessage" class="success-message" style="display: none;">You got it! 🎉</p>
+                    </div>
+                </section>
+
+                <!-- Report Screen -->
+                <section id="summaryScreen" class="screen" style="display: none;">
+                    <div class="result-section">
+                        <h2>Report</h2>
+                        <p class="summary-text">You completed all 5 questions!</p>
+                        <p class="summary-text">Total guesses: <strong><span id="totalGuesses">0</span></strong></p>
+                        <p class="summary-text">Average guesses per question: <strong><span id="avgGuesses">0</span></strong></p>
+                        <div id="roundBreakdown" class="round-breakdown"></div>
+                        <p class="comparison-text">Overall: <span id="comparison"></span></p>
+                        <button id="playAgainBtn" class="play-again-btn" type="button">Play Again</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRT scanlines / vignette / static -->
+    <div class="crt-effects" aria-hidden="true">
+        <div class="crt-power"></div>
+        <div class="crt-scanlines"></div>
+        <div class="crt-vignette"></div>
+        <div class="crt-flicker"></div>
+        <div class="crt-noise"></div>
+    </div>
+
+    <!-- Ambient office UI -->
+    <div class="office-hud" aria-hidden="true">
+        <div class="hud-rec">● REC</div>
+        <div class="hud-cam">CAM 01 — OFFICE</div>
+        <div class="hud-date" id="hudDate"></div>
+    </div>
+
     <div id="debugMenu" class="debug-menu" style="display:none;">
         <div class="debug-content">
             <h3>Debug Menu</h3>
@@ -26,80 +106,9 @@
         </div>
     </div>
 
-    <div class="office-scene">
-        <div class="monitor-wrap">
-            <div class="monitor">
-                <div class="monitor-screen">
-                    <div id="gameContainer" class="container screen-container">
-                        <header>
-                            <h1>WH🔍DLE</h1>
-                            <p class="subtitle">Guess the missing info!</p>
-                        </header>
-
-                        <!-- Game Screen -->
-                        <section id="gameScreen" class="screen">
-                            <div class="round-indicator">Question <span id="currentRound">1</span> of <span id="totalRounds">5</span></div>
-                            <div class="profile-section">
-                                <div class="profile-header">
-                                    <div id="profileAvatar" class="profile-avatar" aria-label="Profile picture"></div>
-                                    <h2><span id="profileInitials"></span></h2>
-                                </div>
-                                <div class="profile-info">
-                                    <p><strong>Current:</strong> <span id="currentWorkplace"></span></p>
-                                    <p><strong>Location:</strong> <span id="profileLocation"></span></p>
-                                    <p><strong>Experiences:</strong> <span id="numExp"></span></p>
-                                    <p class="about-text"><strong>Description:</strong> <span id="profileAbout"></span></p>
-                                </div>
-                                <div class="question-section">
-                                    <p class="question-text">Where did this person <strong>previously</strong> work?</p>
-                                    <div class="hidden-info">
-                                        <p>They worked at: <span id="hiddenWorkplace" class="hidden-box">???</span></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="guess-section">
-                                <p class="attempts-text">Guesses: <span id="guessCount">0</span></p>
-                                <div id="optionsContainer" class="options-container">
-                                    <!-- Options populated by JavaScript -->
-                                </div>
-                                <p id="feedback" class="feedback" aria-live="polite"></p>
-                                <p id="successMessage" class="success-message" style="display: none;">You got it! 🎉</p>
-                            </div>
-                        </section>
-
-                        <!-- Report Screen -->
-                        <section id="summaryScreen" class="screen" style="display: none;">
-                            <div class="result-section">
-                                <h2>Report</h2>
-                                <p class="summary-text">You completed all 5 questions!</p>
-                                <p class="summary-text">Total guesses: <strong><span id="totalGuesses">0</span></strong></p>
-                                <p class="summary-text">Average guesses per question: <strong><span id="avgGuesses">0</span></strong></p>
-                                <div id="roundBreakdown" class="round-breakdown"></div>
-                                <p class="comparison-text">Overall: <span id="comparison"></span></p>
-                                <button id="playAgainBtn" class="play-again-btn" type="button">Play Again</button>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </div>
-            <div class="monitor-stand"></div>
-            <div class="monitor-base"></div>
-        </div>
-        <div class="desk">
-            <div class="desk-top"></div>
-            <div class="desk-items">
-                <div class="player">
-                    <div class="player-head"></div>
-                    <div class="player-body"></div>
-                </div>
-                <div class="keyboard"></div>
-                <div class="mouse"></div>
-            </div>
-        </div>
-    </div>
-
-    <script src="profiles_data.js"></script>
-    <script src="app.js"></script>
+    <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
+    <script src="profiles_data.js?v=2"></script>
+    <script src="office3d.js?v=5"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>

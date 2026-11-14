@@ -105,10 +105,10 @@ function updateParticles() {
 }
 
 function screenShake() {
-    const container = document.getElementById('gameContainer');
-    if (container) {
-        container.classList.add('shake');
-        setTimeout(() => container.classList.remove('shake'), CONFIG.shakeDuration);
+    const screen = document.getElementById('screenOverlay');
+    if (screen) {
+        screen.classList.add('shake');
+        setTimeout(() => screen.classList.remove('shake'), CONFIG.shakeDuration);
     }
 }
 
@@ -271,14 +271,7 @@ function startRound() {
     // Set avatar
     const avatar = document.getElementById('profileAvatar');
     if (avatar) {
-        const initials = gameState.currentProfile.initials || '??';
-        avatar.textContent = initials;
-        // Color based on initials
-        const colors = ['#415a77', '#778da9', '#1b263b', '#0d1b2a'];
-        let hash = 0;
-        for (let i = 0; i < initials.length; i++) hash = initials.charCodeAt(i) + ((hash << 5) - hash);
-        avatar.style.background = colors[Math.abs(hash) % colors.length];
-        avatar.style.transform = 'scale(1)';
+        avatar.textContent = gameState.currentProfile.initials || '??';
     }
     
     document.getElementById('summaryScreen').style.display = 'none';
@@ -385,7 +378,7 @@ function handleGuess(guess, buttonElement) {
         if (successMsg) successMsg.style.display = 'block';
         
         playCorrectSound();
-        createParticles(window.innerWidth / 2, 200, '#10b981');
+        createParticles(window.innerWidth / 2, 200, '#4dff88');
         
         // Record result
         gameState.roundResults.push({
@@ -409,13 +402,13 @@ function handleGuess(guess, buttonElement) {
         buttonElement.disabled = true;
         
         document.getElementById('feedback').textContent = 'Try again!';
-        document.getElementById('feedback').style.color = '#ef4444';
+        document.getElementById('feedback').style.color = 'var(--crt-red)';
         
         playWrongSound();
         screenShake();
         createParticles(buttonElement.getBoundingClientRect().left + buttonElement.offsetWidth / 2,
                         buttonElement.getBoundingClientRect().top + buttonElement.offsetHeight / 2,
-                        '#ef4444');
+                        '#ff4b3a');
     }
 }
 
@@ -544,6 +537,19 @@ function setupDebugMenu() {
         if (keyBuffer === 'JOB') {
             openDebug();
             keyBuffer = '';
+        }
+
+        // Answer with number keys 1-4
+        if (/^[1-4]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const visible = document.getElementById('gameScreen');
+            if (visible && visible.style.display !== 'none' && !gameState.hasWon) {
+                const opts = document.querySelectorAll('.option-btn:not(:disabled)');
+                const btn = opts[parseInt(e.key, 10) - 1];
+                if (btn) {
+                    btn.click();
+                    btn.focus();
+                }
+            }
         }
     });
 }

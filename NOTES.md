@@ -52,11 +52,14 @@ can therefore add at most its own single row, so the total can't be inflated by 
 to a counter field.
 
 It is decoration: if Firebase is unreachable, the rules aren't deployed, or the page is
-opened from `file://`, the counter stays hidden and the game is unaffected.
+opened from `file://`, the counter stays hidden and the game is unaffected. Reading the
+count does not require an account, so even before Anonymous auth is enabled the number
+shows - it just won't include that browser.
 
-One-time setup in the Firebase console (project `whodle-6725a`):
+One-time setup in the Firebase console (project `whodle-6725a`), full walkthrough in
+[`FIREBASE.md`](FIREBASE.md):
 1. **Authentication → Sign-in method → Anonymous → Enable.** Without this, sign-in
-   returns a 400 and the counter never appears.
+   returns a 400 and new visitors aren't added to the count.
 2. **Firestore Database → Create database** (production mode is fine, rules are
    supplied below).
 3. Deploy the rules: `firebase deploy --only firestore:rules`, or paste
@@ -86,5 +89,7 @@ what protect the data.
 - `profiles_full.json` — full repaired dataset (source for the projection)
 - `counter.js` — Firebase visitor counter (loaded as a module on both pages)
 - `firestore.rules` — security rules for the visitor collection
+- `FIREBASE.md` — step-by-step setup (console + CLI), verification, troubleshooting,
+  cost and threat model for the visitor counter
 - `firebase.json`, `.firebaserc` — Firebase CLI deploy config
 - `index.html` — landing page

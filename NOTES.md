@@ -39,7 +39,7 @@ first time. To serve it locally:
       `experiences`. Rows hide themselves when that profile has no data for them.
       Employers from the work history are deliberately NOT listed: the answer is one of
       them, so showing them would give the round away.
-- [x] Visitor counter on Firebase (Firestore only, no accounts), see below
+- [x] Visitor counter on Firebase (Firestore only, no accounts) — live, one row per browser
 - [x] Responsive: on narrow screens the screen design resolution shrinks with the
       projected CRT so text stays readable (single-column options, compact profile)
 - [x] All tuning numbers live in `CONFIG` (app.js) and `SCENE` (office3d.js)

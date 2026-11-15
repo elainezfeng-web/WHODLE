@@ -1,18 +1,19 @@
-# Turning on the visitor counter
+# Visitor counter
 
-The counter is already coded (`counter.js`, `firestore.rules`) and points at the Firebase
-project `whodle-6725a`. **But nothing is switched on in the project yet**, so right now
-the counter stays hidden and the browser console shows errors like:
+**Status: live.** The Firestore database exists, `firestore.rules` is published, and the
+counter renders on both pages (`OPERATORS ON FILE: N`). This file is the setup and repair
+runbook for project `whodle-6725a` — use it if the counter ever disappears or the project
+is rebuilt. **There is no sign-in** and no authorized-domain list to maintain.
+
+If the counter is hidden, the browser console names the reason; jump to
+[troubleshooting](#troubleshooting). Typical causes are unpublished rules, a missing
+database, or an offline network:
 
 ```
 POST https://firestore.googleapis.com/.../documents:runAggregationQuery   403
 [counter] could not register this visitor: permission-denied
 [counter] unavailable: permission-denied
 ```
-
-That is expected. You need to do **two things, once**, in the Firebase console. After
-that it works forever with no maintenance. **There is no sign-in to enable** — no
-Authentication setup, no authorized domains.
 
 - **Fast path:** [Part 1](#part-1-console-only-no-installs) — about 3 minutes, no installs.
 - **Repeatable path:** [Part 2](#part-2-cli-rules-deploys) — install the CLI once, then

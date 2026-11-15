@@ -50,13 +50,21 @@ async function start() {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Stable per-browser identity, so returning visitors are not re-counted.
-    const { user } = await signInAnonymously(getAuth(app));
+    // Registering needs an account; reading the count does not. So a failed
+    // sign-in (e.g. Anonymous auth not enabled yet) only means this browser is
+    // missing from the total - everyone still sees the number.
+    try {
+        // Stable per-browser identity, so returning visitors are not re-counted.
+        const { user } = await signInAnonymously(getAuth(app));
 
-    // Register this visitor once. Existing rows are left untouched.
-    const ref = doc(db, VISITORS, user.uid);
-    if (!(await getDoc(ref)).exists()) {
-        await setDoc(ref, { firstSeen: serverTimestamp() });
+        // Register this visitor once. Existing rows are left untouched
+        // (and the rules forbid updating them).
+        const ref = doc(db, VISITORS, user.uid);
+        if (!(await getDoc(ref)).exists()) {
+            await setDoc(ref, { firstSeen: serverTimestamp() });
+        }
+    } catch (err) {
+        console.warn('[counter] could not register this visitor:', err && (err.code || err.message));
     }
 
     const { count } = (await getCountFromServer(collection(db, VISITORS))).data();
@@ -69,5 +77,5 @@ async function start() {
 
 start().catch((err) => {
     // Never let the counter break the game.
-    console.debug('[counter] unavailable:', err && (err.code || err.message));
+    console.warn('[counter] unavailable:', err && (err.code || err.message));
 });

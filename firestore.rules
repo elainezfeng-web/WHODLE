@@ -15,14 +15,18 @@ service cloud.firestore {
 
     match /visitors/{uid} {
 
-      // The public count query needs read access to the collection.
-      // The only data in these documents is a timestamp, never the uid
-      // itself in a readable form beyond the doc id.
+      // The public count query needs read access to the collection, and it
+      // works signed-out too - counter.js only needs an account to register
+      // a new row. These documents hold nothing but a timestamp.
       allow read: if true;
 
       // A signed-in user may create exactly one document, at their own uid,
       // containing nothing but a server-generated timestamp. That is what
       // makes the count equal "one row per browser" and not one row per write.
+      //
+      // counter.js writes `firstSeen: serverTimestamp()`. Firestore validates
+      // that sentinel as request.time, so this equality is what pins the field
+      // to the server clock instead of the visitor's (spoofable) one.
       allow create: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.keys().hasOnly(['firstSeen'])

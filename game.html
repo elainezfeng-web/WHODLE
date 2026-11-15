@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tiny5&family=VT323&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body class="office-body">
     <div id="office3d"></div>
@@ -34,14 +34,39 @@
                     <div class="profile-section">
                         <div class="profile-header">
                             <div id="profileAvatar" class="profile-avatar" aria-label="Profile picture"></div>
-                            <h2><span id="profileInitials"></span></h2>
+                            <div class="profile-headline">
+                                <h2><span id="profileInitials"></span></h2>
+                                <div class="profile-stats">
+                                    <span><b id="statConnections">0</b> CONNECTIONS</span>
+                                    <span class="stat-followers"><b id="statFollowers">0</b> FOLLOWERS</span>
+                                    <span><b id="statExperience">0</b> ROLES</span>
+                                    <span><b id="statEducation">0</b> DEGREES</span>
+                                    <span><b id="statSkills">0</b> SKILLS</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="profile-info">
                             <p><strong>Current:</strong> <span id="currentWorkplace"></span></p>
                             <p><strong>Location:</strong> <span id="profileLocation"></span></p>
-                            <p><strong>Experiences:</strong> <span id="numExp"></span></p>
-                            <p class="about-text"><strong>Description:</strong> <span id="profileAbout"></span></p>
                         </div>
+                        <dl class="dossier">
+                            <div class="dossier-row" id="rowAbout">
+                                <dt>SUMMARY</dt>
+                                <dd id="profileAbout"></dd>
+                            </div>
+                            <div class="dossier-row" id="rowEducation">
+                                <dt>EDUCATION</dt>
+                                <dd id="profileEducation"></dd>
+                            </div>
+                            <div class="dossier-row" id="rowSkills">
+                                <dt>SKILLS</dt>
+                                <dd id="profileSkills"></dd>
+                            </div>
+                            <div class="dossier-row" id="rowCareer">
+                                <dt>CAREER</dt>
+                                <dd id="profileCareer"></dd>
+                            </div>
+                        </dl>
                         <div class="question-section">
                             <p class="question-text">Where did this person <strong>previously</strong> work?</p>
                             <div class="hidden-info">
@@ -90,6 +115,7 @@
         <div class="hud-rec">● REC</div>
         <div class="hud-cam">CAM 01 — OFFICE</div>
         <div class="hud-date" id="hudDate"></div>
+        <div class="hud-users" id="hudUsers" data-visitor-count="OPERATORS ON FILE" hidden></div>
     </div>
 
     <div id="debugMenu" class="debug-menu" style="display:none;">
@@ -107,8 +133,9 @@
     </div>
 
     <script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
-    <script src="profiles_data.js?v=2"></script>
+    <script src="profiles_data.js?v=3"></script>
     <script src="office3d.js?v=5"></script>
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=9"></script>
+    <script type="module" src="counter.js?v=1"></script>
 </body>
 </html>

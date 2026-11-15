@@ -95,7 +95,7 @@ body.office-body {
         var(--crt-bg);
     color: var(--crt-amber);
     text-shadow: 0 0 6px rgba(255, 176, 0, 0.55);
-    padding: 14px 26px 16px;
+    padding: 10px 22px 12px;
     position: relative;
     scrollbar-width: thin;
     scrollbar-color: var(--crt-amber-dim) transparent;
@@ -112,8 +112,8 @@ body.office-body {
 /* Header */
 .crt-header {
     border-bottom: 2px solid var(--crt-line);
-    padding-bottom: 8px;
-    margin-bottom: 10px;
+    padding-bottom: 5px;
+    margin-bottom: 7px;
 }
 
 .crt-topline {
@@ -138,7 +138,7 @@ body.office-body {
 
 .crt-logo {
     font-family: 'Tiny5', 'VT323', monospace;
-    font-size: 50px;
+    font-size: 40px;
     line-height: 1;
     letter-spacing: 10px;
     color: var(--crt-amber);
@@ -146,7 +146,7 @@ body.office-body {
     text-shadow:
         0 0 8px rgba(255, 176, 0, 0.8),
         0 0 22px rgba(255, 176, 0, 0.35);
-    margin: 4px 0 2px;
+    margin: 2px 0 0;
 }
 
 .crt-cursor {
@@ -157,7 +157,7 @@ body.office-body {
 
 .subtitle {
     text-align: center;
-    font-size: 20px;
+    font-size: 17px;
     color: var(--crt-amber-dim);
     letter-spacing: 1px;
 }
@@ -171,7 +171,7 @@ body.office-body {
     font-size: 21px;
     letter-spacing: 2px;
     color: var(--crt-green);
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     text-shadow: 0 0 6px rgba(77, 255, 136, 0.6);
 }
 
@@ -179,8 +179,8 @@ body.office-body {
 .profile-section {
     border: 1px solid var(--crt-line);
     background: rgba(19, 22, 13, 0.6);
-    padding: 10px 14px;
-    margin-bottom: 10px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
     position: relative;
 }
 
@@ -199,19 +199,19 @@ body.office-body {
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 8px;
+    gap: 8px;
+    margin-bottom: 5px;
 }
 
 .profile-avatar {
-    width: 56px;
-    height: 56px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     border: 2px solid var(--crt-amber);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
     color: var(--crt-bg);
     background: var(--crt-amber);
@@ -221,15 +221,15 @@ body.office-body {
 }
 
 .profile-header h2 {
-    font-size: 30px;
+    font-size: 26px;
     letter-spacing: 4px;
     color: var(--crt-amber);
 }
 
 .profile-info p {
-    margin: 2px 0;
-    font-size: 21px;
-    line-height: 1.12;
+    margin: 1px 0;
+    font-size: 19px;
+    line-height: 1.1;
     color: var(--crt-amber);
 }
 
@@ -238,29 +238,69 @@ body.office-body {
     font-weight: normal;
 }
 
-.about-text {
-    margin-top: 5px !important;
-    color: var(--crt-green) !important;
-    font-size: 19px !important;
-    line-height: 1.15;
-    text-shadow: 0 0 5px rgba(77, 255, 136, 0.4);
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+.profile-headline {
+    min-width: 0;
+}
+
+.profile-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px 14px;
+    margin-top: 1px;
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: var(--crt-amber-dim);
+}
+
+.profile-stats b {
+    color: var(--crt-green);
+    font-weight: normal;
+    text-shadow: 0 0 5px rgba(77, 255, 136, 0.35);
+}
+
+/* Dossier: one row per database section (summary, education, skills, career) */
+.dossier {
+    margin-top: 4px;
+    display: grid;
+    gap: 1px;
+}
+
+.dossier-row {
+    display: grid;
+    grid-template-columns: 106px 1fr;
+    gap: 10px;
+    align-items: baseline;
+}
+
+.dossier-row dt {
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: var(--crt-amber-dim);
+    white-space: nowrap;
+}
+
+.dossier-row dd {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.14;
+    color: var(--crt-green);
+    text-shadow: 0 0 5px rgba(77, 255, 136, 0.35);
+    /* hard two-line stop; -webkit-line-clamp is unreliable on grid items */
+    max-height: 2.34em;
     overflow: hidden;
 }
 
 .question-section {
-    margin-top: 8px;
+    margin-top: 5px;
     border-top: 1px dashed var(--crt-line);
-    padding-top: 6px;
+    padding-top: 4px;
 }
 
 .question-text {
     font-size: 21px;
     text-align: center;
     color: var(--crt-amber);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .hidden-info {
@@ -282,13 +322,13 @@ body.office-body {
 
 /* Guesses */
 .guess-section {
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 .attempts-text {
-    font-size: 20px;
+    font-size: 19px;
     color: var(--crt-amber-dim);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .options-container {
@@ -300,9 +340,9 @@ body.office-body {
 
 .option-btn {
     font-family: 'VT323', monospace;
-    font-size: 21px;
+    font-size: 20px;
     text-align: left;
-    padding: 10px 14px;
+    padding: 8px 12px;
     background: var(--crt-panel);
     color: var(--crt-amber);
     border: 1px solid var(--crt-amber-dim);
@@ -556,6 +596,15 @@ body.office-body {
     letter-spacing: 1px;
 }
 
+.hud-users {
+    position: absolute;
+    bottom: 14px;
+    right: 18px;
+    font-size: 18px;
+    color: var(--crt-amber-dim);
+    letter-spacing: 1px;
+}
+
 /* ============================================================
    Mute button
    ============================================================ */
@@ -795,9 +844,31 @@ body.office-body {
         font-size: 17px;
         margin: 0;
     }
-    /* Flavour text is the first thing to go on a tiny screen */
-    .about-text {
+    /* Dossier: keep the two most useful sections, drop the long ones */
+    .dossier-row {
+        grid-template-columns: 92px 1fr;
+        gap: 8px;
+    }
+    .dossier-row dt {
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+    .dossier-row dd {
+        font-size: 16px;
+        max-height: 1.25em;
+    }
+    #rowAbout,
+    #rowCareer {
         display: none !important;
+    }
+    .profile-stats {
+        font-size: 14px;
+        gap: 1px 10px;
+        letter-spacing: 0;
+    }
+    /* Followers is the least useful chip on a one-line stat row */
+    .stat-followers {
+        display: none;
     }
     .question-section {
         margin-top: 5px;
@@ -860,6 +931,11 @@ body.office-body {
         font-size: 15px;
         bottom: 10px;
         left: 12px;
+    }
+    .hud-users {
+        font-size: 15px;
+        bottom: 10px;
+        right: 12px;
     }
     .mute-btn {
         top: 42px;

@@ -207,6 +207,29 @@ function startNewGame(dateKey = null) {
     startRound();
 }
 
+// Dossier helpers -----------------------------------------------------------
+// Fill a labelled row, or hide the whole row when that profile has no data
+// for it (so short profiles don't show empty labels).
+function fillDossierRow(rowId, valueId, text) {
+    const row = document.getElementById(rowId);
+    const value = document.getElementById(valueId);
+    if (!row || !value) return;
+    const clean = (text || '').trim();
+    if (!clean) {
+        row.style.display = 'none';
+        return;
+    }
+    row.style.display = '';
+    value.textContent = clean;
+}
+
+// "Degree at School; Other at School" -> "Degree at School · Other at School"
+function splitList(value, separator) {
+    if (!value) return '';
+    const parts = value.split(separator).map(s => s.trim()).filter(Boolean);
+    return parts.join(' · ');
+}
+
 // Initialize/start a round
 function startRound() {
     initAudio();
@@ -252,16 +275,27 @@ function startRound() {
     gameState.hasWon = false;
     
     // Update UI
+    const profile = gameState.currentProfile;
     document.getElementById('currentRound').textContent = gameState.currentRound;
     document.getElementById('totalRounds').textContent = CONFIG.totalRounds;
-    document.getElementById('profileInitials').textContent = gameState.currentProfile.initials || '??';
-    document.getElementById('currentWorkplace').textContent = gameState.currentProfile.workplace_current || 'N/A';
-    document.getElementById('profileLocation').textContent = gameState.currentProfile.location || 'N/A';
-    document.getElementById('numExp').textContent = gameState.currentProfile.numExperiences || 0;
-    const aboutEl = document.getElementById('profileAbout');
-    if (aboutEl) {
-        aboutEl.textContent = gameState.currentProfile.description || gameState.currentProfile.about || 'No description available.';
-    }
+    document.getElementById('profileInitials').textContent = profile.initials || '??';
+    document.getElementById('currentWorkplace').textContent = profile.workplace_current || 'N/A';
+    document.getElementById('profileLocation').textContent = profile.location || 'N/A';
+
+    // Dossier sections. Each one is driven by a different part of the profile.
+    document.getElementById('statConnections').textContent = (profile.connections || 0).toLocaleString();
+    document.getElementById('statFollowers').textContent = (profile.followers || 0).toLocaleString();
+    document.getElementById('statExperience').textContent = profile.numExperiences || 0;
+    document.getElementById('statEducation').textContent = profile.numEducations || 0;
+    document.getElementById('statSkills').textContent = profile.numSkills || 0;
+
+    fillDossierRow('rowAbout', 'profileAbout', profile.about);
+    fillDossierRow('rowEducation', 'profileEducation', splitList(profile.education_summary, ';'));
+    fillDossierRow('rowSkills', 'profileSkills', (profile.skills_list || []).join(' · '));
+    fillDossierRow('rowCareer', 'profileCareer', profile.career
+        ? `${profile.numExperiences || 0} roles · ${profile.career}`
+        : '');
+
     document.getElementById('guessCount').textContent = gameState.guessCount;
     document.getElementById('hiddenWorkplace').textContent = '???';
     document.getElementById('feedback').textContent = '';
@@ -276,7 +310,12 @@ function startRound() {
     
     document.getElementById('summaryScreen').style.display = 'none';
     document.getElementById('gameScreen').style.display = 'block';
-    
+
+    // Small screens scroll the CRT to reach the options; jump back to the top
+    // so the next profile's clues start on screen.
+    const crt = document.getElementById('gameContainer');
+    if (crt) crt.scrollTop = 0;
+
     setupOptions();
 }
 
@@ -416,6 +455,9 @@ function handleGuess(guess, buttonElement) {
 function showReport() {
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('summaryScreen').style.display = 'block';
+
+    const crt = document.getElementById('gameContainer');
+    if (crt) crt.scrollTop = 0;
     
     const totalGuesses = gameState.roundResults.reduce((sum, r) => sum + r.guesses, 0);
     const avgGuesses = (totalGuesses / gameState.roundResults.length).toFixed(1);

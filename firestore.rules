@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// WHODLE visitor counter
+//
+// Model: one document per browser at visitors/{uid}, where uid is a Firebase
+// anonymous auth uid. The number shown on the site is a server-side count over
+// that collection, so nobody can inflate it by writing to a counter field —
+// the most any client can do is create its own single document.
+//
+// Deploy with:  firebase deploy --only firestore:rules
+// Or paste this file into Firebase Console -> Firestore Database -> Rules.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /visitors/{uid} {
+
+      // The public count query needs read access to the collection.
+      // The only data in these documents is a timestamp, never the uid
+      // itself in a readable form beyond the doc id.
+      allow read: if true;
+
+      // A signed-in user may create exactly one document, at their own uid,
+      // containing nothing but a server-generated timestamp. That is what
+      // makes the count equal "one row per browser" and not one row per write.
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.keys().hasOnly(['firstSeen'])
+                    && request.resource.data.firstSeen == request.time;
+
+      // No edits, no deletes: a visitor row is permanent, so the count only grows.
+      allow update, delete: if false;
+    }
+
+    // Everything else in the database stays private.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

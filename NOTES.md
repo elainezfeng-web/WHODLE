@@ -39,33 +39,29 @@ first time. To serve it locally:
       `experiences`. Rows hide themselves when that profile has no data for them.
       Employers from the work history are deliberately NOT listed: the answer is one of
       them, so showing them would give the round away.
-- [x] Visitor counter on Firebase (Firestore + anonymous auth), see below
+- [x] Visitor counter on Firebase (Firestore only, no accounts), see below
 - [x] Responsive: on narrow screens the screen design resolution shrinks with the
       projected CRT so text stays readable (single-column options, compact profile)
 - [x] All tuning numbers live in `CONFIG` (app.js) and `SCENE` (office3d.js)
 
 ## Visitor counter (Firebase)
 
-How it works: each browser signs in anonymously, gets one document in the `visitors`
-collection, and the number shown is a server-side count over that collection. A client
-can therefore add at most its own single row, so the total can't be inflated by writing
-to a counter field.
+How it works: each browser gets a random 32-character id in `localStorage`, which is the
+document id in the `visitors` collection. The number shown is a server-side count over
+that collection, so a client can add at most its own single row and the total can't be
+inflated by writing to a counter field. No accounts: the rules check the row's shape
+(32 hex chars, one server timestamp, no updates), not who wrote it.
 
-It is decoration: if Firebase is unreachable, the rules aren't deployed, or the page is
-opened from `file://`, the counter stays hidden and the game is unaffected. Reading the
-count does not require an account, so even before Anonymous auth is enabled the number
-shows - it just won't include that browser.
+It is decoration: if Firebase is unreachable, the rules aren't deployed, storage is
+blocked, or the page is opened from `file://`, the counter stays hidden and the game is
+unaffected. Reading the count needs no identity either.
 
 One-time setup in the Firebase console (project `whodle-6725a`), full walkthrough in
 [`FIREBASE.md`](FIREBASE.md):
-1. **Authentication → Sign-in method → Anonymous → Enable.** Without this, sign-in
-   returns a 400 and new visitors aren't added to the count.
-2. **Firestore Database → Create database** (production mode is fine, rules are
+1. **Firestore Database → Create database** (production mode is fine, rules are
    supplied below).
-3. Deploy the rules: `firebase deploy --only firestore:rules`, or paste
+2. Deploy the rules: `firebase deploy --only firestore:rules`, or paste
    `firestore.rules` into **Firestore Database → Rules → Publish**.
-4. If the site is on GitHub Pages, add its domain under
-   **Authentication → Settings → Authorized domains** (localhost is already allowed).
 
 Optional hardening: in Google Cloud Console → APIs & Services → Credentials, restrict
 the browser API key to your own domains. The key is public by design; the rules are
@@ -87,7 +83,7 @@ what protect the data.
 - `profiles_data.js` — embedded game data (`window.PROFILES_DATA`), generated from
   `profiles_full.json` with only the fields the game reads
 - `profiles_full.json` — full repaired dataset (source for the projection)
-- `counter.js` — Firebase visitor counter (loaded as a module on both pages)
+- `counter.js` — Firebase visitor counter (localStorage id, no accounts)
 - `firestore.rules` — security rules for the visitor collection
 - `FIREBASE.md` — step-by-step setup (console + CLI), verification, troubleshooting,
   cost and threat model for the visitor counter

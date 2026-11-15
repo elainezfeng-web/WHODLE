@@ -2,10 +2,16 @@ rules_version = '2';
 
 // WHODLE visitor counter
 //
-// Model: one document per browser at visitors/{uid}, where uid is a Firebase
-// anonymous auth uid. The number shown on the site is a server-side count over
-// that collection, so nobody can inflate it by writing to a counter field —
-// the most any client can do is create its own single document.
+// Model: one document per browser at visitors/{visitorId}, where visitorId is
+// a random 32-character hex string that counter.js keeps in localStorage. The
+// number shown on the site is a server-side count over that collection, so
+// nobody can inflate it by writing to a counter field.
+//
+// There is no authentication. These rules validate what a row looks like, not
+// who wrote it, so a script can still add rows. (Anonymous auth had the same
+// hole: it can create unlimited accounts.) The id pattern and the single
+// server timestamp just keep the collection well-formed and stop a client from
+// reusing ids that could ever mean something else.
 //
 // Deploy with:  firebase deploy --only firestore:rules
 // Or paste this file into Firebase Console -> Firestore Database -> Rules.
@@ -13,22 +19,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /visitors/{uid} {
+    match /visitors/{visitorId} {
 
-      // The public count query needs read access to the collection, and it
-      // works signed-out too - counter.js only needs an account to register
-      // a new row. These documents hold nothing but a timestamp.
+      // The public count query needs read access to the collection. It works
+      // signed out too - that's the point of not using auth. The documents
+      // hold nothing but a timestamp.
       allow read: if true;
 
-      // A signed-in user may create exactly one document, at their own uid,
-      // containing nothing but a server-generated timestamp. That is what
-      // makes the count equal "one row per browser" and not one row per write.
-      //
-      // counter.js writes `firstSeen: serverTimestamp()`. Firestore validates
-      // that sentinel as request.time, so this equality is what pins the field
-      // to the server clock instead of the visitor's (spoofable) one.
-      allow create: if request.auth != null
-                    && request.auth.uid == uid
+      // Anyone may add an anonymous row: an id of the shape counter.js
+      // generates, exactly one field, and a server-generated timestamp.
+      allow create: if visitorId.matches('^[0-9a-f]{32}$')
                     && request.resource.data.keys().hasOnly(['firstSeen'])
                     && request.resource.data.firstSeen == request.time;
 

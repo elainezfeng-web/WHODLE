@@ -1,4 +1,6 @@
 ﻿node_modules/
+# Local secrets - .env must never go into a save point.
+.env
 .env*
 .vercel/
 .expo/

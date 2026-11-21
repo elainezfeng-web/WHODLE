@@ -67,6 +67,45 @@ Optional hardening: in Google Cloud Console → APIs & Services → Credentials,
 the browser API key to your own domains. The key is public by design; the rules are
 what protect the data.
 
+## AI key (MindDo)
+
+The AI key never lives in this repo or in the browser. **Server code gets it from
+`getKey()`** in `server/minddo-key.js` (Node 18+, no npm packages). The helper reads
+`KEYGEN_URL` and `KEYGEN_TOKEN` from the server's `.env`, POSTs to
+`KEYGEN_URL + /api/lookup-key` with `Authorization: Bearer KEYGEN_TOKEN`, caches the
+returned `apiKey` until `expiresAt`, and requests a new one when it expires or OpenAI
+rejects it (call `invalidateKey()` once on a 401, then `getKey()` again).
+
+`.env` is git-ignored. Fill in the two values yourself, then restart the server;
+environment variables set by the host win over the file, which is how a serverless
+deploy should supply them. Never paste the token into chat or commit it. The key and
+token are never printed or sent to the page - only server code may load this module.
+
+Typical server route:
+
+```js
+const { getKey, invalidateKey, sendKeyError } = require('./server/minddo-key');
+
+app.post('/api/chat', async (req, res) => {
+    try {
+        let key = await getKey();
+        let answer = await askOpenAI(key, req.body.prompt);
+        if (answer.status === 401) {          // OpenAI says the key is invalid
+            invalidateKey();
+            key = await getKey();             // exactly one refresh, no loop
+            answer = await askOpenAI(key, req.body.prompt);
+        }
+        res.json({ reply: answer.text });
+    } catch (err) {
+        sendKeyError(res, err);               // error.message to user, error.fix to log
+    }
+});
+```
+
+When a request fails, the reply has `error.message` and `error.fix`. `sendKeyError()`
+sends only `error.message` to the visitor and logs `error.fix` on the server; there is no
+retry loop.
+
 ## What's next
 - [ ] Check the office framing / lighting on a real monitor and phone
 - [ ] Add a proper "boot sequence" before question 1
@@ -88,4 +127,6 @@ what protect the data.
 - `FIREBASE.md` — step-by-step setup (console + CLI), verification, troubleshooting,
   cost and threat model for the visitor counter
 - `firebase.json`, `.firebaserc` — Firebase CLI deploy config
+- `.env` — local secrets for the AI key service (git-ignored; you fill it in)
+- `server/minddo-key.js` — server-only helper; `getKey()` returns the current AI key
 - `index.html` — landing page
